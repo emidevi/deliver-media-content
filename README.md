@@ -36,21 +36,27 @@ source venv/bin/activate
 ### Install dependencies
 
 ```bash
+pip install .
 pip install -r requirements.txt
 ```
 ### Run the app
 
 ```bash
-python app.py
+uvicorn backend.main:app --reload
 ```
+Go to `http://127.0.0.1:8000/docs` to test the endpoints
 
-### Test CURL command
+### Test 
+#### CURL command
 This should return a JSON response from the imago index
-
 ```bash
 curl -u elastic:<PASSWORD> <HOST>:<PORT>/<INDEX>/_search -k
 
 # -u provides username:password
 # -k skips SSL certificate validation
+```
+#### Unit Test
+```bash
+pytest
 ```
 

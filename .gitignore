@@ -1,3 +1,21 @@
-.env
+# Virtual environments
+venv/
+.env/
+
+# Byte-compiled / cache files
 __pycache__/
 *.py[cod]
+*.pyo
+
+# IDE/editor settings
+.vscode/
+.idea/
+
+# Pytest
+.pytest_cache/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
