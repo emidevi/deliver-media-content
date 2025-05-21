@@ -13,8 +13,6 @@ This project implements a lightweight media search system using **FastAPI** and 
 │ ├── main.py # FastAPI application entrypoint
 │ ├── utils/
 │ │ └── es.py # Elasticsearch client config
-
-# imago-media-search/
 ├── app.py
 ├── .env
 ├── requirements.txt
@@ -27,7 +25,9 @@ This project implements a lightweight media search system using **FastAPI** and 
 
 ### Create a Virtual Environment
 
-Pre-Requisite -> `Python 3.12.3`
+### Pre-Requisite
+ - `Python 3.12.3`
+ - `elasticsearch<9.0.0,>=8.0.0`
 
 ```bash
 python3 -m venv venv
