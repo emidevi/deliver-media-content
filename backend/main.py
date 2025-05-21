@@ -1,7 +1,9 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, HTTPException
 from typing import List
-from backend.models.media import MediaItem
+from backend.models.media import MediaItem, SearchResponse
 from backend.utils.es import get_elastic
+from elasticsearch import Elasticsearch
+from elasticsearch.exceptions import ConnectionError
 
 app = FastAPI()
 es = get_elastic()
@@ -21,8 +23,14 @@ def normalize_hit(doc):
         "thumbnail_url": thumbnail_url,
     }
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 @app.get("/search", response_model=List[MediaItem])
-def search(q: str = Query("", description="Search keyword"), limit: int = 20):
+def search(q: str = Query("", description="Search keyword"), 
+           limit: int = Query(10, ge=1, le=100, description="Number of results"),
+           offset: int = Query(0, ge=0, description="Result offset")):
     query = {
         "query": {
             "multi_match": {
@@ -30,8 +38,13 @@ def search(q: str = Query("", description="Search keyword"), limit: int = 20):
                 "fields": ["title^2", "description", "keywords"]
             }
         },
+        "from": offset,
         "size": limit
     }
-    
-    res = es.search(index="imago", body=query)
-    return [normalize_hit(hit["_source"]) for hit in res["hits"]["hits"]]
+
+    try:
+        res = es.search(index="imago", body=query)
+        hits = res["hits"]["hits"]
+        return [normalize_hit(hit["_source"]) for hit in res["hits"]["hits"]]
+    except ConnectionError as e:
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")

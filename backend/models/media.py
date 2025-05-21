@@ -8,3 +8,7 @@ class MediaItem(BaseModel):
     keywords: List[str]
     db: str
     thumbnail_url: str
+class SearchResponse(BaseModel):
+    results: List[dict]
+    total: int
+    took: int
