@@ -2,11 +2,13 @@ from fastapi import FastAPI, Query, HTTPException
 from typing import List
 from backend.models.media import MediaItem, SearchResponse
 from backend.utils.es import get_elastic
-from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
+from elasticsearch import exceptions as es_exceptions
+from backend.utils.logger import logging
 
 app = FastAPI()
 es = get_elastic()
+logger = logging.getLogger(__name__)
 
 def normalize_hit(doc):
     media_id = str(doc.get("media_id", "")).zfill(10)
@@ -45,6 +47,17 @@ def search(q: str = Query("", description="Search keyword"),
     try:
         res = es.search(index="imago", body=query)
         hits = res["hits"]["hits"]
+        logger.info(f"Search successful: query='{q}', hits={len(hits)}")
         return [normalize_hit(hit["_source"]) for hit in res["hits"]["hits"]]
+    
     except ConnectionError as e:
+        logger.error(f"Elasticsearch connection error: {e}")
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+    
+    except Exception as e:
+        logger.exception("Unexpected error during search")
+        raise HTTPException(status_code=500, detail="Internal server error.")
+    
+    except es_exceptions.ElasticsearchException as e:
+        logger.error(f"Elasticsearch error: {e}")
         raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
