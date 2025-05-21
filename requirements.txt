@@ -2,4 +2,6 @@ fastapi
 uvicorn
 elasticsearch
 loguru
-python-dotenv
+python-dotenvuvicorn==0.34.2
+pydantic==2.11.4
+pydantic_core==2.33.2
